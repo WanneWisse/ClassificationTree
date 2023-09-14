@@ -50,13 +50,14 @@ class Node():
         return p_zeros * p_ones
     
     def split(self):
-        #gain for all features
+        #min gini per feature
         min_gini_for_all_features = []
-        #calculate gain per feature
+        #get x_data and y_data from df
         x_data = x.iloc[self.indices]
         y_data = y.iloc[self.indices]
+        #get 1 feature and decide best splitpoint
         for col_index in range(len(x_data.columns)):
-            #get feature
+            #get 1 feature
             f = x_data.iloc[:, col_index]
             #sort numeric feature
             sorted_indices = np.argsort(f)
@@ -64,7 +65,7 @@ class Node():
             f_s = f[sorted_indices]
             y_s = y_data[sorted_indices]
             
-            #calculate gains for different splits of feature
+            #calculate gini for different splits of feature
             gini_splits = []
             #start at index one of the feature
             for index in range(1,len(f_s)):
@@ -78,7 +79,6 @@ class Node():
                 gini_splits.append((f_s[index],total_gini,gini_part_one,gini_part_two))
             
             f_s_min, min_gini_total,min_gini_p1,min_gini_p2 = min(gini_splits,key=lambda x:x[1])
-            #print(gini_scores_for_feature)
             min_gini_for_all_features.append((col_index,f_s_min,min_gini_total,min_gini_p1,min_gini_p2))
             
         #best feature to split with the split point
