@@ -20,11 +20,11 @@ def tree_pred(x,tr):
 #function for real data
 def load_data(path):
     # read text file into pandas DataFrame
-    df = pd.read_csv(path, sep=",")
+    df = pd.read_csv(path, sep=",",header=None)
     #first 8 columns: numerical data
-    x = df.iloc[:,:8]
+    x = df.iloc[:,:5]
     #last column = label(binary value) 
-    y = df.iloc[:,8]
+    y = df.iloc[:,5]
     return x,y
 
 class Tree():
@@ -55,16 +55,20 @@ class Node():
         #get x_data and y_data from df
         x_data = x.iloc[self.indices]
         y_data = y.iloc[self.indices]
+        #print(x_data)
         #get 1 feature and decide best splitpoint
         for col_index in range(len(x_data.columns)):
             #get 1 feature
             f = x_data.iloc[:, col_index]
+            #print("f:",f)
             #sort numeric feature
             sorted_indices = np.argsort(f)
+            #print("sorted: ",f.argsort())
+            #print("indices:",sorted_indices)
             #sort y at the same way
-            f_s = f[sorted_indices]
-            y_s = y_data[sorted_indices]
-            
+            f_s = f.iloc[sorted_indices]
+            y_s = y_data.iloc[sorted_indices]
+            #print("sorted f:",f_s)
             #calculate gini for different splits of feature
             gini_splits = []
             #start at index one of the feature
@@ -76,8 +80,9 @@ class Node():
                 gini_part_two = self.calculate_gini(y_s_part_two)
                 
                 total_gini = len(y_s_part_one)/len(f_s) * gini_part_one + len(y_s_part_two)/len(f_s) * gini_part_two
-                gini_splits.append((f_s[index],total_gini,gini_part_one,gini_part_two))
+                gini_splits.append((f_s.iloc[index],total_gini,gini_part_one,gini_part_two))
             
+            print(gini_splits)
             f_s_min, min_gini_total,min_gini_p1,min_gini_p2 = min(gini_splits,key=lambda x:x[1])
             min_gini_for_all_features.append((col_index,f_s_min,min_gini_total,min_gini_p1,min_gini_p2))
             
@@ -108,13 +113,17 @@ class Node():
 
     
 #sample data
-data = {'X': [1, 2, 3,4,5],
-        #'Z': [1, 3, 8, 10,20],
-        'Y': [0,1,0,0,1]}
-data = pd.DataFrame(data)
+# data = {'X': [1, 3, 2,4,5],
+#         #'Z': [1, 3, 8, 10,20],
+#         'Y': [0,1,0,0,1]}
+# data = pd.DataFrame(data)
 
-x = data.iloc[:,:1]
-y = data['Y']
+# x = data.iloc[:,:1]
+# y = data['Y']
+x,y = load_data("credit.txt")
+x = x.iloc[:,[1]]
+print(x)
+print(y)
 
 root = Node(x.index)
 tree = Tree(root)
